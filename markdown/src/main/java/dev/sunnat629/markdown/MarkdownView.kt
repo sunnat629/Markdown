@@ -14,11 +14,11 @@ import java.io.*
 import java.util.regex.Pattern
 
 class MarkdownView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
 ) :
-    WebViewIncludeLollipop(context, attrs, defStyleAttr) {
+        WebViewIncludeLollipop(context, attrs, defStyleAttr) {
 
 
     private var mPreviewText: String? = null
@@ -51,7 +51,7 @@ class MarkdownView @JvmOverloads constructor(
         settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
     }
 
-    fun loadMarkdownFromFile(markdownFile: File) {
+    fun loadMarkdownFromFile(markdownFile: File?) {
         try {
             val fileInputStream = FileInputStream(markdownFile)
             val inputStreamReader = InputStreamReader(fileInputStream)
@@ -71,10 +71,10 @@ class MarkdownView @JvmOverloads constructor(
         }
     }
 
-    fun loadMarkdownFromAssets(assetsFileName: String) {
+    fun loadMarkdownFromAssets(assetsFileName: String?) {
         try {
             val buf = StringBuilder()
-            val json = context.assets.open(assetsFileName)
+            val json = context.assets.open(assetsFileName ?: "")
             val `in` = BufferedReader(InputStreamReader(json, "UTF-8"))
             var str: String?
             while (`in`.readLine().also { str = it } != null) {
@@ -87,27 +87,27 @@ class MarkdownView @JvmOverloads constructor(
         }
     }
 
-    fun loadMarkdownFromText(markdownText: String) {
+    fun loadMarkdownFromText(markdownText: String?) {
         val bs64MdText = imgToBase64(markdownText)
         val escMdText = escapeForText(bs64MdText)
         mPreviewText = "demo('$escMdText')"
         initialize()
     }
 
-    private fun escapeForText(mdText: String): String {
-        var escText = mdText.replace("\n", "\\\\n")
-        escText = escText.replace("'", "\\\'")
-        escText = escText.replace("\r", "")
+    private fun escapeForText(mdText: String?): String? {
+        var escText = mdText?.replace("\n", "\\\\n")
+        escText = escText?.replace("'", "\\\'")
+        escText = escText?.replace("\r", "")
         return escText
     }
 
-    private fun imgToBase64(mdText: String): String {
+    private fun imgToBase64(mdText: String?): String? {
         val ptn = Pattern.compile(IMAGE_PATTERN)
         val matcher = ptn.matcher(mdText)
         if (!matcher.find()) {
             return mdText
         }
-        val imgPath = matcher.group(2)
+        val imgPath = matcher.group(2) ?: ""
         if (isUrlPrefix(imgPath) || !isPathExCheck(imgPath)) {
             return mdText
         }
@@ -127,7 +127,7 @@ class MarkdownView @JvmOverloads constructor(
             Log.e(TAG, "IOException:$e")
         }
         val base64Img = baseType + Base64.encodeToString(bytes, Base64.NO_WRAP)
-        return mdText.replace(imgPath, base64Img)
+        return mdText?.replace(imgPath, base64Img)
     }
 
     private fun isUrlPrefix(text: String): Boolean {
