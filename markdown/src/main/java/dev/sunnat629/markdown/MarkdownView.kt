@@ -22,7 +22,7 @@ class MarkdownView @JvmOverloads constructor(
 
 
     private var mPreviewText: String? = null
-    var isOpenUrlInBrowser = false
+    var isOpenUrlInBrowser = true
 
     init {
         initialize()
